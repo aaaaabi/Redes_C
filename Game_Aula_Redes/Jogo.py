@@ -7,13 +7,9 @@ LAURA ABI DAUD      42118816
 
 import pygame
 import random
-import time
-#from random import*
-#from PIL import Image, ImageDraw 
 
 pygame.display.init()
 pygame.mixer.init()
-
 
 # DEFININDO TAMANHO DA TELA
 x = 800
@@ -26,162 +22,188 @@ y = 650
 screen = pygame.display.set_mode((x,y))
 pygame.display.set_caption('ATV DE REDES - JOGO')
 
-bg = pygame.image.load('GAME/Assets/fundo3.png').convert_alpha()
-bg = pygame.transform.scale(bg, (x,y))
+background = pygame.image.load('GAME/Assets/fundo3.png').convert_alpha()
+background = pygame.transform.scale(background, (x,y))
 
 meteoro = pygame.image.load('GAME/Assets/meteoro.png').convert_alpha()
 meteoro = pygame.transform.scale(meteoro, (45,45))
-pos_met_x = 750; pos_met_y = 200
-
-#meteoro2 = pygame.image.load('GAME/Assets/meteoro.png').convert_alpha()
-#meteoro2 = pygame.transform.scale(meteoro2, (45,45))
-#pos_met2_x = 750; pos_met2_y = 400
+pos_meteoro = [750,200]
 
 # JOGADOR FOGUETE 1
-foguete = pygame.image.load('GAME/Assets/foguete1.png').convert_alpha()
-foguete = pygame.transform.scale(foguete, (60,60))
-foguete = pygame.transform.rotate(foguete, -90) # GIRA A NAVE EM 90 GAUS 
-pos_fogute_x = 10; pos_fogute_y = 100 # POSICA DO FOGUETE 
+foguete1 = pygame.image.load('GAME/Assets/foguete1.png').convert_alpha()
+foguete1 = pygame.transform.scale(foguete1, (60,60))
+foguete1 = pygame.transform.rotate(foguete1, -90) # GIRA A NAVE EM 90 GAUS 
+pos_foguete1 = [10,100] # POSICA DO FOGUETE 
 
 # JOGADOR FOGUETE 2
 foguete2 = pygame.image.load('GAME/Assets/foguete2.png').convert_alpha()
-foguete2 = pygame.transform.scale(foguete2, (50,50))
+foguete2 = pygame.transform.scale(foguete2, (60,60))
 foguete2 = pygame.transform.rotate(foguete2, -90) # GIRA A NAVE EM 90 GAUS
-pos_fogute2_x = 10; pos_fogute2_y = 500 # POSICAO DO FOGUETE 2
+pos_foguete2 = [10,500] # POSICAO DO FOGUETE 2
 
 # MISSILS
 missilV1 = pygame.image.load('GAME/Assets/missilVerde1.png').convert_alpha()
 missilV1 = pygame.transform.scale(missilV1, (25,25))
 missilV1 = pygame.transform.rotate(missilV1, -90)
-pos_missilV1_x = pos_fogute_x; pos_missilV1_y = pos_fogute_y # POSICAO DO MISSIL 1 DO FOGUETE 1
+pos_missilV1 = pos_foguete1 # POSICAO DO MISSIL 1 DO FOGUETE 1
 vel_missilV1 = 0; 
 
 missilV2 = pygame.image.load('GAME/Assets/missilVerde2.png').convert_alpha()
 missilV2 = pygame.transform.scale(missilV2, (25,25))
 missilV2 = pygame.transform.rotate(missilV2, -90)
-pos_missilV2_x = pos_fogute2_x; pos_missilV2_y = pos_fogute2_y # POSICAO DO MISSIL 2 DO FOGUETE 2
+pos_missilV2 = pos_foguete2 # POSICAO DO MISSIL 2 DO FOGUETE 2
 vel_missilV2 = 0; 
+
+# PARA FAZER A COLISAO TEMOS QUE TRANSFORMAR IMAGEM EM OBJETOS 
+# A FUNCAO GET_RECT() TRANSFORMA AS IMAMGENS EM OBJETOS     
+foguete_rect =  foguete1.get_rect()
+foguete2_rect = foguete2.get_rect()
+missilV1_rect = missilV1.get_rect()
+missilV2_rect = missilV2.get_rect()
+meteoro_rect =  meteoro.get_rect()
 
 def respawn_meteoro():
     x = 850
     y = random.randint(1, 460)
     return [x,y]
-    #meteoro_respawn_time = random.randit(1,200)
-    #return [x,y,meteoro_respawn_time]
 
 def respawn_missilV1():
     tiro1 = False 
-    respawn_missilV1_x = pos_fogute_x
-    respawn_missilV1_y = pos_fogute_y
+    respawn_missilV1 = pos_foguete1
     vel_missilV1 = 0
-    return [respawn_missilV1_x, respawn_missilV1_y, tiro1, vel_missilV1]
+    return [respawn_missilV1, tiro1, vel_missilV1]
 
 def respawn_missilV2():
     tiro2 = False 
-    respawn_missilV2_x = pos_fogute2_x
-    respawn_missilV2_y = pos_fogute2_y
+    respawn_missilV2 = pos_foguete2
     vel_missilV2 = 0
-    return [respawn_missilV2_x, respawn_missilV2_y, tiro2, vel_missilV2]
+    return [respawn_missilV2, tiro2, vel_missilV2]
+
+score = 5
+def colisoes():
+    global score
+    if pos_foguete1 == 0:
+        return True
+    else: 
+        return False 
 
 # WHILE PARA RODAR O JOGO E NAO FECHAR 
 tiro1 = False
 tiro2 = False
-rodando = True
+app_rodando = True
 
-while rodando:
+while app_rodando:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            rodando = False
+            app_rodando = False
             flag_game = False
-    screen.blit(bg, (0,0))
-    rel_x = x % bg.get_rect().width
-    screen.blit(bg, (rel_x - bg.get_rect().width,0))
+    
+    screen.blit(background, (0,0))
+    
+    rel_x = x % background.get_rect().width
+    screen.blit(background, (rel_x - background.get_rect().width,0))
     if rel_x < 800:
-        screen.blit(bg, (rel_x, 0))
+        screen.blit(background, (rel_x, 0))
 
     # TECLAS PARA PODER MEXER OS FOGUETES
+    tecla = pygame.key.get_pressed()
+    # FOGUETE 1 (ROSA)
+    if tecla[pygame.K_a] and pos_foguete1[0] > 1:
+        pos_foguete1[0] -= 1
+        if not tiro1:
+            pos_missilV1[0] -= 1
+    if tecla[pygame.K_d] and pos_foguete1[0] < 740:
+        pos_foguete1[0] += 1
+        if not tiro1:
+            pos_missilV1[0] += 1
+    if tecla[pygame.K_w] and pos_foguete1[1] > 1:
+        pos_foguete1[1] -= 1
+        if not tiro1:
+            pos_missilV1[1] -= 1
+    if tecla[pygame.K_s] and pos_foguete1[1] < 600:
+        pos_foguete1[1] += 1
+        if not tiro1:
+            pos_missilV1[1] += 1
+
     # FOGUETE 2 (AMARELO)
     tecla = pygame.key.get_pressed()
-    if tecla[pygame.K_UP] and pos_fogute2_y > 1:
-        pos_fogute2_y -= 1
+    if tecla[pygame.K_UP] and pos_foguete2[1] > 1:
+        pos_foguete2[1] -= 1
         if not tiro2:
-            pos_missilV2_y -= 1
-    if tecla[pygame.K_DOWN] and pos_fogute2_y < 605:
-        pos_fogute2_y += 1
+            pos_missilV2[1] -= 1
+    if tecla[pygame.K_DOWN] and pos_foguete2[1] < 600:
+        pos_foguete2[1] += 1
         if not tiro2:
-            pos_missilV2_y += 1
-    if tecla[pygame.K_LEFT] and pos_fogute2_x > 1:
-        pos_fogute2_x -= 1
+            pos_missilV2[1] += 1
+    if tecla[pygame.K_LEFT] and pos_foguete2[0]> 1:
+        pos_foguete2[0] -= 1
         if not tiro2:
-            pos_missilV2_x -= 1
-    if tecla[pygame.K_RIGHT] and pos_fogute2_x < 750:
-        pos_fogute2_x += 1
+            pos_missilV2[0] -= 1
+    if tecla[pygame.K_RIGHT] and pos_foguete2[0] < 740:
+        pos_foguete2[0] += 1
         if not tiro2:
-            pos_missilV2_x += 1
-    
-    # FOGUETE 1 (ROSA)
-    if tecla[pygame.K_a] and pos_fogute_x > 1:
-        pos_fogute_x -= 1
-        if not tiro1:
-            pos_missilV1_x -= 1
-    if tecla[pygame.K_d] and pos_fogute_x < 740:
-        pos_fogute_x += 1
-        if not tiro1:
-            pos_missilV1_x += 1
-    if tecla[pygame.K_w] and pos_fogute_y > 1:
-        pos_fogute_y -= 1
-        if not tiro1:
-            pos_missilV1_y -= 1
-    if tecla[pygame.K_s] and pos_fogute_y < 600:
-        pos_fogute_y += 1
-        if not tiro1:
-            pos_missilV1_y += 1
+            pos_missilV2[0] += 1
 
     # TIRO MISSIL 1
     if tecla[pygame.K_SPACE]:
         tiro1 = True
         vel_missilV1 = 2
-
     # TIRO MISSIL 2
     if tecla[pygame.K_m]:
         tiro2 = True
         vel_missilV2 = 2
 
+    # POSICAO RECT
+    foguete_rect.y =  pos_foguete1[1]
+    foguete_rect.x =  pos_foguete1[0]
+    foguete2_rect.y = pos_foguete2[1]
+    foguete2_rect.x = pos_foguete2[0]
+
+    missilV1_rect.x = pos_missilV1[0]
+    missilV1_rect.y = pos_missilV1[1]
+    missilV2_rect.x = pos_missilV2[0]
+    missilV2_rect.y = pos_missilV2[1]
+
+    meteoro_rect.x = pos_meteoro[0]
+    meteoro_rect.y = pos_meteoro[1]
+
     # MOVIMENTOS
     x -= 0.7
-    pos_met_x -= 2
-    #pos_met2_x -= 2
-    pos_missilV1_x += vel_missilV1
-    if pos_missilV1_x >= 800:
-            pos_missilV1_x, pos_missilV1_y, tiro1, vel_missilV1 = respawn_missilV1()
+    pos_meteoro[0] -= 2
+    
+    # RESPAWN DOS MISSEIS 
+    pos_missilV1[0] += vel_missilV1
+    if pos_missilV1[0] >= 800:
+        pos_missilV1, tiro1, vel_missilV1 = respawn_missilV1()
 
-    pos_missilV2_x += vel_missilV2
-    if pos_missilV2_x >= 800:
-        pos_missilV2_x, pos_missilV2_y, tiro2, vel_missilV2 = respawn_missilV2()
+    pos_missilV2[0] += vel_missilV2
+    if pos_missilV2[0] >= 800:
+        pos_missilV2, tiro2, vel_missilV2 = respawn_missilV2()
+
+    # DESENHA EM VOLTA DOS OBJETOS 
+    pygame.draw.rect(screen, (255, 0, 0), foguete_rect, 4)
+    pygame.draw.rect(screen, (255, 0, 0), foguete2_rect, 4)
+    pygame.draw.rect(screen, (255, 0, 0), missilV1_rect, 4)
+    pygame.draw.rect(screen, (255, 0, 0), missilV2_rect, 4)
+    pygame.draw.rect(screen, (255, 0, 0), meteoro_rect, 4)
 
     # RESPAWN METEOROS
-    if pos_met_x <= -100:
-        pos_met_x = respawn_meteoro()[0]
-        pos_met_y = respawn_meteoro()[1]
-    
+    if pos_meteoro[0] <= -100 or colisoes():
+        pos_meteoro = respawn_meteoro()
+
     # CRIA IMAGENS DOS DOIS MISSEIS 
     # COLOQUEI O SCREEN BLIT DOS MISSEIS ANTES DOS FOGUETES PARA NAO SOBREPOR OS FOGUETES
-    screen.blit(missilV1, (pos_missilV1_x, pos_missilV1_y))
-    screen.blit(missilV2, (pos_missilV2_x, pos_missilV2_y))
+    screen.blit(missilV1, (pos_missilV1[0], pos_missilV1[1]))
+    screen.blit(missilV2, (pos_missilV2[0], pos_missilV2[1]))
     # CRIA IMAGENS DOS DOIS FOGUETES
-    screen.blit(foguete, (pos_fogute_x, pos_fogute_y))
-    screen.blit(foguete2, (pos_fogute2_x, pos_fogute2_y))
-    screen.blit(meteoro, (pos_met_x, pos_met_y))
-    #screen.blit(meteoro2, (pos_met2_x, pos_met2_y))
+    screen.blit(foguete1, (pos_foguete1[0], pos_foguete1[1]))
+    screen.blit(foguete2, (pos_foguete2[0], pos_foguete2[1]))
+    # CRIA A IMAGEM DO METEORO
+    screen.blit(meteoro, (pos_meteoro[0], pos_meteoro[1]))
 
     pygame.display.update()
 
 pygame.display.quit()
 
-# TO DO 
-# 1.0 ARRUMAR O RESPAWN DOS MISSEIS, ELES NAO FUNCIONAM
-# 2.0 COLOCAR OS METEOROS ALEATORIOS 
-# 3.0 FAZER A COLISAO: 
-    # 3.1 FAZER COM QUE SE OS FOGUETES SE COLIDIREM DESCONTA UM PONTO ATE MORREREM
-    # 3.2 SE UM DOS MISSESIS ATINGIR O FOGUETE DESCONTA UM PONTO ATE MORREREM 
-    # 3.3 SE UM DOS FOGUETES ENCOSTAR NO METEORO DESCONTA UM PONTO ATE MORREREM 
+
+
